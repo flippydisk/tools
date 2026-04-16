@@ -4,9 +4,6 @@ module.exports = {
         '!**/*.mocks.js',
         'src/**/*.js'
     ],
-    moduleNameMapper: {
-        '~root(.*)$': '<rootDir>/$1'
-    },
     moduleDirectories: [
         'node_modules'
     ],
@@ -19,13 +16,15 @@ module.exports = {
     setupFilesAfterEnv: [
         '<rootDir>/spec/tests.config.js'
     ],
-    testEnvironment: 'jest-environment-jsdom-global',
-    testMatch: ['**/__tests__/**/*.spec|test.[jt]s?(x)', '**/?(*.)+(spec|test).[jt]s?(x)',],
+    testEnvironment: 'jest-environment-jsdom',
+    testMatch: ['**/?(*.)+(spec|test).[jt]s?(x)'],
     transform: {
-        '^.+\\.html$': 'jest-raw-loader',
-        '^.+\\.jsx?$': 'babel-jest'
+        '^.+\.html$': 'jest-raw-loader',
+        '^.+\.jsx?$': ['@swc/jest']
     },
-    testURL: 'http://localhost/',
+    testEnvironmentOptions: {
+        url: 'http://localhost/'
+    },
     automock: false,
     setupFiles: [
         './spec/fetchMock.js'

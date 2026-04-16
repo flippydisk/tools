@@ -26,17 +26,17 @@ export default function getStringSafely(thing) {
 
     // it is an object with it's own toString implementation. Hopefully it is meaningful.
     if (
-        type === 'object'
-        && Object.prototype.hasOwnProperty.call(thing, 'toString')
-        && typeof thing.toString === 'function'
+        type === 'object' &&
+        Object.prototype.hasOwnProperty.call(thing, 'toString') &&
+        typeof thing.toString === 'function'
     ) {
         return thing.toString(thing);
     }
 
     // it is an object without it's own toString implementation. Let's JSON.stringify() it
     if (
-        type === 'object'
-        && !Object.prototype.hasOwnProperty.call(thing, 'toString')
+        type === 'object' &&
+        !Object.prototype.hasOwnProperty.call(thing, 'toString')
     ) {
         return JSON.stringify(thing);
     }

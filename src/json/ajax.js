@@ -51,7 +51,7 @@ export default function ajax(endpoint = '', cb = undefined, options = {
             }
 
             debug.log('ajax: NOT OK', ok);
-            return promise(true, signature, response);
+            return promise(signature, response, true);
         })
         .then((data) => {
             if (typeof cb === 'function') return cb(data);

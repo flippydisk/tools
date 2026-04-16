@@ -7,7 +7,7 @@
  */
 import isNullish from './isNullish';
 
-// eslint-disable-next-line consistent-return
+ 
 export default function isEmptyObject(obj) {
     if (typeof obj !== 'object' || isNullish(obj)) return true;
     if (typeof obj === 'object' && !Array.isArray(obj)) return Object.keys(obj).length <= 0;
