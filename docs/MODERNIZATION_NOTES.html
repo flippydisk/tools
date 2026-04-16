@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<!--####################################################################
+	THIS IS A GENERATED FILE -- ANY CHANGES MADE WILL BE OVERWRITTEN
+
+	INSTEAD CHANGE:
+	source: MODERNIZATION_NOTES.md
+	@page MODERNIZATION_NOTES
+######################################################################## -->
+
+<!--[if lt IE 7]>
+<html class="no-js ie lt-ie9 lt-ie8 lt-ie7" lang="en">
+<![endif]-->
+<!--[if IE 7]>
+<html class="no-js ie lt-ie9 lt-ie8" lang="en">
+<![endif]-->
+<!--[if IE 8]>
+<html class="no-js ie lt-ie9" lang="en">
+<![endif]-->
+<!--[if IE 9]>
+<html class="no-js ie ie9" lang="en">
+<![endif]-->
+<!--[if gt IE 9]><!-->
+<html class="no-js" lang="en">
+<!--<![endif]-->
+<head>
+	<meta charset="utf-8">
+	<title>@flippydisk/tools  - MODERNIZATION_NOTES</title>
+	<meta name="description" content="">
+	<meta name="author" content="">
+	
+		<link rel="stylesheet" type="text/css" href="./dist/bundles/static.css">
+	
+	<!--[if lt IE 9]>
+	<script type="text/javascript" src="static/html5shiv.js"></script>
+	<!--<![endif]-->
+</head>
+
+<body class="docs">
+	
+	<header>
+		<nav class="container">
+
+			<div class="logo-menu">
+				<a class="brand" href="./index.html">@flippydisk/tools</a>
+			</div>
+
+			<div class="pull-right">
+				<div class="bitovi-menu">
+					<a href="http://bitovi.com" class="bitovi icon-bits">Bitovi</a>
+					<ul class="dropdown-menu">
+						<li><a href="http://bitovi.com">Bitovi.com</a></li>
+						<li><a href="http://bitovi.com/blog/">Blog</a></li>
+						<li><a href="http://bitovi.com/design/">Design</a></li>
+						<li><a href="http://bitovi.com/development/">Development</a></li>
+						<li><a href="http://bitovi.com/training/">Training</a></li>
+						<li><a href="http://bitovi.com/open-source/">Open Source</a></li>
+						<li><a href="http://bitovi.com/people/">People</a></li>
+						<li><a href="http://bitovi.com/contact/">Contact Us</a></li>
+					</ul>
+				</div>
+			</div>
+		</nav>
+	</header>
+	
+
+	
+<div class="container api">
+
+	
+	<nav class="sidebar">
+		
+		<ul class="api cascading primary-grouping"> 
+	
+		
+		<li class="search-container active parent">
+			<a class="sidebar-title" href="index.html" data-search="@flippydisk/tools">
+				@flippydisk/tools
+			</a>
+			
+		</li>
+		
+		
+			
+			<li class="search-container active">
+			<a class="sidebar-title" href="MODERNIZATION_NOTES.html" data-search="MODERNIZATION_NOTES">
+				MODERNIZATION_NOTES
+			</a>
+			
+		</li>
+			
+		
+	
+</ul>
+	</nav>
+	
+	
+	
+	<article class="content docs">
+	
+	
+		
+		<section class="title">
+			<div class="heading">
+<h1>MODERNIZATION_NOTES</h1>
+	<ul class="tags">
+		<li>page</li>
+	</ul>
+	
+	
+</div>
+
+<div class="sub-heading">
+	
+	
+	<span class="inherits">&nbsp;</span>
+</div>
+
+<ul class="links">
+	
+	
+	
+	
+</ul>
+<br />
+		</section>
+		
+		
+		
+		<section class="contents">
+		</section>
+		
+		
+		
+
+		
+		<section class="description">
+			<h1>Modernization Notes</h1>
+
+		</section>
+		
+
+		
+			
+		
+		
+		
+		
+
+		
+		<section class="comment">
+			<h2>What changed</h2>
+<ul>
+<li>Removed Babel and legacy Babel config</li>
+<li>Replaced the build step with a lightweight Node-based build script at <code>scripts/build.js</code></li>
+<li>Added prebuilt dual outputs in <code>dist/esm</code> and <code>dist/cjs</code></li>
+<li>Upgraded package metadata to publish modern ESM and CommonJS entry points</li>
+<li>Replaced legacy ESLint config with <code>eslint.config.js</code> using ESLint 9 flat config</li>
+<li>Updated Jest to use <code>@swc/jest</code></li>
+<li>Removed the old root <code>index.js</code> shim that pointed at generated files before the build ran</li>
+</ul>
+<h2>Source fixes included</h2>
+<ul>
+<li><code>src/debug/debug.js</code> now safely checks for <code>window</code> before reading it</li>
+<li><code>src/json/ajax.js</code> now passes <code>promise(signature, response, true)</code> in the correct argument order</li>
+</ul>
+<h2>Build outputs</h2>
+<ul>
+<li><code>dist/esm/**</code> contains ESM <code>.js</code> files</li>
+<li><code>dist/cjs/**</code> contains CommonJS <code>.cjs</code> files</li>
+</ul>
+<h2>Local verification to run</h2>
+<pre><code class="language-bash">npm install
+npm run lint
+npm test
+npm run build
+</code></pre>
+<p>Additional compatibility fix:</p>
+<ul>
+<li>Updated legacy Jest specs to stop using the removed global <code>jsdom.reconfigure(...)</code> pattern.</li>
+<li>Tests now set <code>window.location.search</code> via <code>window.history.replaceState(...)</code>, which works with modern <code>jest-environment-jsdom</code>.</li>
+</ul>
+
+		</section>
+		
+		
+
+		
+
+		
+	
+	
+	</article>
+	
+	
+
+</div>
+
+
+
+
+
+	
+	<footer>
+		<nav class="container">
+			<a class="brand donejs" href="index.html"></a>
+		</nav>
+	</footer>
+	
+
+	<script type="text/javascript">
+		var docObject = {"type":"page","name":"MODERNIZATION_NOTES","src":"MODERNIZATION_NOTES.md","description":"# Modernization Notes","dest":"C:\\www\\flippydisk-tools\\docs","glob":{"pattern":"**/*.{js,md}","ignore":"{node_modules,bower_components}/**/*","cwd":"C:\\www\\flippydisk-tools"},"generators":["html"],"page":"docs","docConfigDest":"../documentjs.json","project":{}};
+	</script>
+
+	
+		<script>
+			steal = {
+				instantiated: {
+					"bundles/static.css!$css" : null
+				}
+			};
+		</script>
+		<script type="text/javascript"
+				data-main="static"
+				src="./dist/steal.production.js">
+		</script>
+	
+</body>
+</html>

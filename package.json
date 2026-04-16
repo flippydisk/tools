@@ -1,6 +1,6 @@
 {
   "name": "@flippydisk/tools",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "description": "A set of JS utilities to help with web development",
   "homepage": "https://www.flipppydisk.com",
   "repository": {
@@ -8,22 +8,51 @@
     "url": "git+https://github.com/flippydisk/tools.git"
   },
   "author": "Jim O'Harra-Sutton (https://www.flippydisk.com)",
-  "scripts": {
-    "lint": "cross-env eslint ./src/**/*.js",
-    "test": "cross-env npm run lint && jest --coverage --verbose",
-    "test:watch": "cross-env npm run lint && jest --watch --coverage --verbose",
-    "build": "cross-env npm run test && cross-env babel --ignore src/**/*.spec.js -d lib/ src/",
-    "build:production": "cross-env npm run test && cross-env npm run docs && cross-env babel --ignore src/**/*.spec.js -d lib/ src/",
-    "docs": "cross-env documentjs",
-    "docs:watch": "cross-env documentjs --watch",
-    "update": "cross-env ./scripts/update.sh",
-    "release": "cross-env ./scripts/npm-release.sh",
-    "bump": "cross-env ./scripts/bump.sh"
+  "type": "module",
+  "main": "./dist/cjs/index.cjs",
+  "module": "./dist/esm/index.js",
+  "exports": {
+    ".": {
+      "import": "./dist/esm/index.js",
+      "require": "./dist/cjs/index.cjs"
+    },
+    "./debug": {
+      "import": "./dist/esm/debug/debug.js",
+      "require": "./dist/cjs/debug/debug.cjs"
+    },
+    "./disable": {
+      "import": "./dist/esm/disable/disable.js",
+      "require": "./dist/cjs/disable/disable.cjs"
+    },
+    "./json": {
+      "import": "./dist/esm/json/json.js",
+      "require": "./dist/cjs/json/json.cjs"
+    },
+    "./json/ajax": {
+      "import": "./dist/esm/json/ajax.js",
+      "require": "./dist/cjs/json/ajax.cjs"
+    },
+    "./json/promise": {
+      "import": "./dist/esm/json/promise.js",
+      "require": "./dist/cjs/json/promise.cjs"
+    },
+    "./json/responder": {
+      "import": "./dist/esm/json/responder.js",
+      "require": "./dist/cjs/json/responder.cjs"
+    },
+    "./lang": {
+      "import": "./dist/esm/lang/lang.js",
+      "require": "./dist/cjs/lang/lang.cjs"
+    },
+    "./tests": {
+      "import": "./dist/esm/tests/tests.js",
+      "require": "./dist/cjs/tests/tests.cjs"
+    },
+    "./package.json": "./package.json"
   },
-  "main": "lib/index.js",
   "files": [
     "docs",
-    "lib",
+    "dist",
     "src"
   ],
   "keywords": [
@@ -39,30 +68,31 @@
     "console"
   ],
   "dependencies": {
-    "core-js": "^3.12.1",
-    "jsdom": "^16.5.3"
+    "jsdom": "^16.7.0"
   },
   "devDependencies": {
-    "@babel/cli": "^7.14.3",
-    "@babel/core": "^7.14.3",
-    "@babel/eslint-parser": "^7.14.3",
-    "@babel/plugin-proposal-class-properties": "^7.13.0",
-    "@babel/plugin-proposal-object-rest-spread": "^7.14.2",
-    "@babel/preset-env": "^7.14.2",
-    "cross-env": "^7.0.3",
+    "@eslint/js": "^9.39.1",
+    "@swc/core": "^1.13.5",
+    "@swc/jest": "^0.2.39",
     "documentjs": "^0.5.5",
-    "eslint": "^7.26.0",
-    "eslint-config-airbnb-base": "^14.2.1",
-    "eslint-import-resolver-alias": "^1.1.2",
-    "eslint-loader": "^4.0.2",
-    "eslint-plugin-babel": "^5.3.1",
-    "eslint-plugin-import": "^2.23.2",
-    "eslint-plugin-jest": "^24.3.6",
-    "jest": "^26.6.3",
-    "jest-environment-jsdom": "^26.6.2",
-    "jest-environment-jsdom-global": "^2.0.4",
+    "eslint": "^9.39.1",
+    "globals": "^16.4.0",
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0",
     "jest-fetch-mock": "^3.0.3",
     "jest-raw-loader": "^1.0.1"
+  },
+  "scripts": {
+    "lint": "eslint ./src --fix",
+    "test": "npm run lint && jest --coverage --verbose",
+    "test:watch": "npm run lint && jest --watch --coverage --verbose",
+    "build": "npm run test && node ./scripts/build.js",
+    "build:production": "npm run test && npm run docs && node ./scripts/build.js",
+    "docs": "documentjs",
+    "docs:watch": "documentjs --watch",
+    "update": "./scripts/update.sh",
+    "release": "./scripts/npm-release.sh",
+    "bump": "./scripts/bump.sh"
   },
   "license": "MIT",
   "bugs": {
@@ -70,6 +100,10 @@
   },
   "directories": {
     "doc": "docs",
-    "lib": "lib"
-  }
+    "lib": "dist"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "sideEffects": false
 }

@@ -43,7 +43,7 @@ const items = {
     und: undefined,
     nul: null,
     html: '<a href="flippydisk.com" class="MyClass">The words I want &amp; more.</a>',
-    /* eslint-disable symbol-description */
+     
     symbol: Symbol(),
     func: function x() {},
 };

@@ -170,7 +170,7 @@ const errorResponse = {
 };
 
 const noCallBackResponse = {
-    // eslint-disable-next-line quotes
+     
     errorDescriptor: `The cb parameter in this call has an expected typeof === 'function' or undefined, and instead it has a typeof object`,
     moreInfo: 'general error',
 };

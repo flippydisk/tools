@@ -1,10 +1,8 @@
 import * as Tests from '../tests/tests';
 import Debug from './debug';
 
-/* eslint-disable no-console */
-jsdom.reconfigure({
-    url: 'https://www.flippydisk.com/?debug=DebugTest&debug=SecondDebugTest'
-});
+ 
+window.history.replaceState({}, '', '/?debug=DebugTest&debug=SecondDebugTest');
 
 global.console = {
     log: jest.fn(),

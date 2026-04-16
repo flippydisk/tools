@@ -29,8 +29,8 @@ export default class Disable {
     constructor(properties = {}) {
         const hasControl = !isEmptyString(properties.control);
         const isDisabledOnLoad = (
-            properties.disable !== undefined
-            && typeof properties.disable === 'boolean')
+            properties.disable !== undefined &&
+            typeof properties.disable === 'boolean')
             ? properties.disable
             : false;
         const decodeSearch = new URLSearchParams(window.location.search);
@@ -38,9 +38,9 @@ export default class Disable {
         this.control = hasControl ? properties.control : '';
         const findDisabled = decodeSearch.getAll(this.param);
         const isDisabled = decodeSearch.has(this.param);
-        const inUrl = hasControl
-            && isDisabled
-            && this.find(findDisabled, properties.control);
+        const inUrl = hasControl &&
+            isDisabled &&
+            this.find(findDisabled, properties.control);
 
         this.setStatus(properties, inUrl, hasControl);
     }

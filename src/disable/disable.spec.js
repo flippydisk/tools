@@ -1,9 +1,7 @@
 import * as Tests from '../tests/tests';
 import Disable from './disable';
 
-jsdom.reconfigure({
-    url: 'https://www.flippydisk.com/?one=true&disable=DisableTest&more=false',
-});
+window.history.replaceState({}, '', '/?one=true&disable=DisableTest&more=false');
 
 const disable = new Disable({ disable: false, control: 'DisableTest' }); // In URL Params
 const fileDisable = new Disable({ disable: true, control: 'DisableTest2' }); // In File mode
