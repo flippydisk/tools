@@ -74,6 +74,7 @@
     "@eslint/js": "^9.39.1",
     "@swc/core": "^1.13.5",
     "@swc/jest": "^0.2.39",
+    "cross-env": "^10.1.0",
     "documentjs": "^0.5.5",
     "eslint": "^9.39.1",
     "globals": "^16.4.0",
@@ -83,16 +84,16 @@
     "jest-raw-loader": "^1.0.1"
   },
   "scripts": {
-    "lint": "eslint ./src --fix",
+    "lint": "cross-env eslint ./src --fix",
     "test": "npm run lint && jest --coverage --verbose",
     "test:watch": "npm run lint && jest --watch --coverage --verbose",
     "build": "npm run test && node ./scripts/build.js",
     "build:production": "npm run test && npm run docs && node ./scripts/build.js",
-    "docs": "documentjs",
-    "docs:watch": "documentjs --watch",
-    "update": "./scripts/update.sh",
-    "release": "./scripts/npm-release.sh",
-    "bump": "./scripts/bump.sh"
+    "docs": "cross-env documentjs",
+    "docs:watch": "cross-env documentjs --watch",
+    "update": "cross-env ./scripts/update.sh",
+    "release": "cross-env ./scripts/npm-release.sh",
+    "bump": "cross-env ./scripts/bump.sh"
   },
   "license": "MIT",
   "bugs": {
