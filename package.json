@@ -68,18 +68,18 @@
     "console"
   ],
   "dependencies": {
-    "jsdom": "^16.7.0"
+    "jsdom": "^26.1.0"
   },
   "devDependencies": {
-    "@eslint/js": "^9.39.1",
+    "@eslint/js": "^10.0.1",
     "@swc/core": "^1.13.5",
     "@swc/jest": "^0.2.39",
     "cross-env": "^10.1.0",
-    "documentjs": "^0.5.5",
-    "eslint": "^9.39.1",
+    "jsdoc": "^4.0.5",
+    "eslint": "^10.8.0",
     "globals": "^16.4.0",
-    "jest": "^29.7.0",
-    "jest-environment-jsdom": "^29.7.0",
+    "jest": "^30.4.2",
+    "jest-environment-jsdom": "^30.4.1",
     "jest-fetch-mock": "^3.0.3",
     "jest-raw-loader": "^1.0.1"
   },
@@ -89,8 +89,8 @@
     "test:watch": "npm run lint && jest --watch --coverage --verbose",
     "build": "npm run test && node ./scripts/build.js",
     "build:production": "npm run test && npm run docs && node ./scripts/build.js",
-    "docs": "cross-env documentjs",
-    "docs:watch": "cross-env documentjs --watch",
+    "docs": "jsdoc --configure jsdoc.json",
+    "docs:watch": "npm run docs",
     "update": "cross-env ./scripts/update.sh",
     "release": "cross-env ./scripts/npm-release.sh",
     "bump": "cross-env ./scripts/bump.sh"
@@ -105,6 +105,10 @@
   },
   "engines": {
     "node": ">=18"
+  },
+  "overrides": {
+    "glob": "13.0.6",
+    "minimatch": "10.2.5"
   },
   "sideEffects": false
 }

@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: debug/debug.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: debug/debug.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * @page Debug
+ * @description Console debugger for optionally logging step by step progress.
+ * Can be used with a {debug: true} in the instantiating call, or by URL parameter.
+ * Setup: const debug = new Debug({debug: false, control: 'Game'});
+ * @module class Debug
+ * @parent @flippydisk/tools
+ */
+
+export default class Debug {
+    /**
+     * @function constructor
+     * @description initializing Debug constructor
+     * @parent Debug
+     * @param options {Object} { debug, control, param, urlMode, fileMode, debugAll, concatenator }
+     * See this.setOptions() for options{} properties and description.
+     */
+    constructor(options = {}) {
+        this.options = this.setOptions(options);
+        const config = this.config();
+        const sortOptions = this.sort(config);
+
+        this.info(sortOptions.mode, sortOptions.type);
+    }
+
+    /**
+     * @function setOptions
+     * @description Setup for all the debugging options
+     * @param options {Object} {
+     *     debug: Boolean,
+     *     control: String,
+     *     param: String,
+     *     urlMode: String,
+     *     fileMode: String,
+     *     debugAll: String,
+     *     concatenator: String
+     * }
+     * @parent Debug
+     * @return {Object} The options object with instantiated overrides, or the defaults.
+     */
+    setOptions(options = {}) {
+        return {
+            debug: options.debug || false,
+            control: options.control || '',
+            param: options.param || 'debug',
+            urlMode: options.urlMode || 'Enabling URL Debug mode for',
+            fileMode: options.fileMode || 'Enabling File Debug mode for',
+            debugAll: options.debugAll || 'All',
+            concatenator: options.concatenator || ':'
+        };
+    }
+
+    /**
+     * @function config
+     * @description Setup for all the URL vs. File based debugging options
+     * @parent Debug
+     * @return {Object} { all: Boolean, url: Boolean, local: Boolean }
+     */
+    config() {
+        const hasControl = this.options.control !== '';
+        const hasWindow = typeof window !== 'undefined' &amp;&amp; window.location;
+        const search = hasWindow ? window.location.search : null;
+        const decodeSearch = (search) ? new URLSearchParams(search) : null;
+        if (!decodeSearch) {
+            this.error('Debug config(): could not find window.location.search:', decodeSearch);
+            return false;
+        }
+        const findDebugs = decodeSearch.getAll(this.options.param);
+        const isDebug = decodeSearch.has(this.options.param);
+        const allInUrl = hasControl &amp;&amp; isDebug &amp;&amp; this.find(findDebugs, this.options.debugAll);
+        const inUrl = hasControl &amp;&amp; isDebug &amp;&amp; this.find(findDebugs, this.options.control);
+        return {
+            all: !this.options.debug &amp;&amp; allInUrl &amp;&amp; !inUrl,
+            url: !this.options.debug &amp;&amp; inUrl &amp;&amp; !allInUrl,
+            local: this.options.debug &amp;&amp; hasControl
+        };
+    }
+
+    /**
+     * @function sort
+     * @description Parse all options and return the proper scenario for debugging
+     * @param scenario {Object} { all, url, local } from this.config()
+     * @parent Debug
+     * @return {Object} { mode: Boolean, type: Boolean }
+     */
+    sort(scenario) {
+        if (scenario.all || scenario.url || scenario.local) { this.options.debug = true; }
+        if (scenario.all) { return { mode: this.options.urlMode, type: this.options.debugAll }; }
+        if (scenario.url) { return { mode: this.options.urlMode, type: this.options.control }; }
+        if (scenario.local) { return { mode: this.options.fileMode, type: this.options.control }; }
+        return { mode: this.options.fileMode, type: this.options.debugAll };
+    }
+
+    /**
+     * @function find
+     * @description Search all cases of dexter:debug in the search params and match them
+     * with the control name.
+     *
+     * @param findDebugs {Array} List of debug params
+     * @param param {String} Control name to search for
+     * @parent Debug
+     *
+     * @return {Boolean} True or False if it's matched the param
+     */
+    find(findDebugs, param) { return findDebugs.some(v => v === param); }
+
+    /**
+     * @function logFactory
+     * @description Take a type and console out that type to this.printIt()
+     * @param logType {String} log, warn, error, info, table, debug
+     * @param ...log {Array} Implicit arguments cast from the logger functions
+     * @parent Debug
+     * @return {Function | null} Returns this.printIt
+     */
+     
+    logFactory(logType) { return (...log) => (log.length ? this.printIt(logType, log) : null); }
+
+    /**
+     * @function log
+     * @description console.log output
+     * @parent Debug
+     * @return {Function} Returns this.logFactory with the type
+     */
+    log = this.logFactory('log');
+
+    /**
+     * @function warn
+     * @description console.warn output
+     * @parent Debug
+     * @return {Function} Returns this.logFactory with the type
+     */
+    warn = this.logFactory('warn');
+
+    /**
+     * @function error
+     * @description console.error output
+     * @parent Debug
+     * @return {Function} Returns this.logFactory with the type
+     */
+    error = this.logFactory('error');
+
+    /**
+     * @function info
+     * @description console.info output
+     * @parent Debug
+     * @return {Function} Returns this.logFactory with the type
+     */
+    info = this.logFactory('info');
+
+    /**
+     * @function debug
+     * @description console.debug output
+     * @parent Debug
+     * @return {Function} Returns this.logFactory with the type
+     */
+    debug = this.logFactory('debug');
+
+    /**
+     * @function table
+     * @description console.table output
+     * @parent Debug
+     * @return {Function} Returns this.logFactory with the type
+     */
+    table = this.logFactory('table');
+
+    /**
+     * @function trace
+     * @description console.trace output
+     * @param log {Array | Object} Accepts any number of arguments of any type.
+     * @parent Debug
+     * @return {Function} Returns this.logFactory with the type
+     */
+    trace = this.logFactory('trace');
+
+    /**
+     * @function printIt
+     * @description Prints the output to the console via the methods chosen
+     * @param type {String} Type of logger to use
+     * @param log {String | Array | Object} Accepts any number of arguments of any type.
+     * @parent Debug
+     * @return {Function} Executes console.log, etc. via .apply() with the options chosen
+     */
+    printIt(type, log) {
+        let logger;
+        let output;
+
+         
+        switch (type) {
+            case 'error':
+                logger = console.error;
+                break;
+            case 'warn':
+                logger = console.warn;
+                break;
+            case 'log':
+                logger = console.log;
+                break;
+            case 'info':
+                logger = console.info;
+                break;
+            case 'debug':
+                logger = console.debug;
+                break;
+            case 'table':
+                logger = console.table;
+                break;
+            default:
+                logger = console.log;
+                break;
+        }
+         
+
+        if (type === undefined || log === undefined || !this.options.debug) return false;
+        // Place control tag as first array item
+        output = [`${this.options.control}${this.options.concatenator}`];
+        log.forEach((val) => { output.push(val); });
+
+        // Flatten the array once for output
+        output = [].concat.apply(output);
+        // pass the log array as arguments to console.*
+        logger.apply(console, output);
+
+        return true;
+    }
+}
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-class%2520Debug.html">class Debug</a></li><li><a href="module-class%2520Disable.html">class Disable</a></li></ul><h3>Global</h3><ul><li><a href="global.html#ajax">ajax</a></li><li><a href="global.html#filterHTMLTags">filterHTMLTags</a></li><li><a href="global.html#getPropertySafely">getPropertySafely</a></li><li><a href="global.html#getStringSafely">getStringSafely</a></li><li><a href="global.html#isEmptyObject">isEmptyObject</a></li><li><a href="global.html#isEmptyString">isEmptyString</a></li><li><a href="global.html#isNull">isNull</a></li><li><a href="global.html#isNullish">isNullish</a></li><li><a href="global.html#isNumber">isNumber</a></li><li><a href="global.html#isObject">isObject</a></li><li><a href="global.html#isStringy">isStringy</a></li><li><a href="global.html#isType">isType</a></li><li><a href="global.html#isUndefined">isUndefined</a></li><li><a href="global.html#isValidObject">isValidObject</a></li><li><a href="global.html#promise">promise</a></li><li><a href="global.html#responder">responder</a></li><li><a href="global.html#testDefaults">testDefaults</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.5</a> on Sun Jul 26 2026 14:12:56 GMT-0700 (Pacific Daylight Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
