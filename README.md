@@ -1,100 +1,155 @@
-@page @flippydisk/tools
-@group Debug 0 Debug
-@group Disable 1 Disable
-@group Json 2 Json
-@group Lang 3 Lang
-@group Tests 4 Tests
+# @flippydisk/tools
 
-# Flippydisk Web Tools [![Build Status](https://travis-ci.com/flippydisk/tools.svg?branch=main)](https://travis-ci.com/flippydisk/tools)
+Small, framework-independent JavaScript utilities for browsers and Node.js. Version 2 uses native platform APIs, publishes ESM and CommonJS, and has no runtime dependencies.
 
-## Overview
-Flippydisk tools are designed to help front end developers build projects with a few of the general necessities that
-are extremely helpful in the process. Debugging, graceful error messages, url search tools, ES6 Ajax calls, and
-similar items are what this suite focuses on. `1.0.0` will include a debugger, error logger and the ability to
-disable an entire script from a URL param. More features will be added in future versions.
+## Requirements
 
-Basically, I kept finding myself needing these items over and over again, project after project. So much so that I
-finally decided to put them all together in a suite that can be imported via NPM.
+- Node.js 22 or newer for Node consumers and development
+- A modern browser with ES modules, `URLSearchParams`, and Fetch for browser use
 
-## Installation
-In your project's directory:
+The library has no React, Vue, Svelte, Next.js, or bundler dependency. Those tools consume the same package exports as plain JavaScript.
 
-```
-npm i @flippydisk/tools --save-dev
+## Install
+
+```sh
+npm install @flippydisk/tools
 ```
 
-That's it! Once you have it installed in your project, see individual component's README files for their own use.
+## Debug
 
-Ex. `Debug`:
-```
-import * as tools from '@flippydisk/tools';
-const debug = new tools.Debug({ debug: false, control: 'MyControl' });
+```js
+import { Debug } from '@flippydisk/tools';
+
+const debug = new Debug({
+	debug: true,
+	control: 'Application',
+});
+
+debug.log('Started');
+debug.info('Ready');
+debug.warn('Slow response');
+debug.error('Request failed');
+debug.debug({ state: 'active' });
+debug.table([{ name: 'item' }]);
+debug.trace('Trace point');
 ```
 
-## Tests
-Each component will have its own tests which will also run as a full Flippydisk tools test suite.
+The direct ESM and CommonJS entry points preserve the established constructor shape:
 
+```js
+import Debug from '@flippydisk/tools/debug';
+const { Debug } = require('@flippydisk/tools');
+const DebugDirect = require('@flippydisk/tools/debug');
 ```
+
+Set `debug: false` and activate a control from the browser URL:
+
+```text
+?debug=Application
+?debug=All
+?debug=Application&debug=AnotherControl
+```
+
+Explicit debugging works in Node.js and server-rendered applications without browser globals.
+
+## Disable
+
+`Disable` provides a small URL-controlled feature switch and is safe to construct in Node.js:
+
+```js
+import { Disable } from '@flippydisk/tools';
+
+const feature = new Disable({ control: 'ExperimentalPanel' });
+if (!feature.isDisabled()) {
+	// Run the feature.
+}
+```
+
+Use `?disable=ExperimentalPanel` to disable it in a browser, or pass `disable: true` explicitly.
+
+## Fetch helper
+
+`ajax` uses the platform Fetch implementation. It forwards request options and `AbortSignal`, parses JSON responses by content type, returns text for other content types, and returns `null` for empty responses.
+
+```js
+import { ajax } from '@flippydisk/tools/json';
+
+const controller = new AbortController();
+const data = await ajax('/api/items', undefined, {
+	method: 'GET',
+	signal: controller.signal,
+});
+```
+
+HTTP failures reject with an `HTTPError` containing `status`, `statusText`, `url`, `response`, and parsed `data`. Network, abort, and malformed JSON errors also reject normally. An optional callback remains supported and its return value becomes the resolved result.
+
+## Language utilities
+
+```js
+import * as Lang from '@flippydisk/tools/lang';
+
+Lang.getPropertySafely({ user: { name: 'Ada' } }, 'user.name');
+Lang.isNullish(value);
+Lang.isValidObject(value);
+```
+
+`filterHTMLTags` strips tag-shaped text. It is not an HTML sanitizer and must not be used as a security boundary for untrusted markup.
+
+## Native browser modules
+
+Serve the ESM distribution from a valid module URL. Browsers do not resolve bare npm package names without an import map or bundler.
+
+```html
+<script type="module">
+	import Debug from '/node_modules/@flippydisk/tools/dist/esm/debug/debug.js';
+
+	const debug = new Debug({ debug: true, control: 'BrowserApp' });
+	debug.log('Native browser module loaded');
+</script>
+```
+
+Vite, Next.js, Rollup, webpack, React, Vue, and Svelte can use the package-name imports shown above.
+
+## Development
+
+```sh
+npm run lint
+npm run lint:fix
 npm test
+npm run build
+npm run check
 ```
 
-### Output:
-```
-$ npm run test
-
-> @flippydisk/tools@1.0.1 lint
-> cross-env eslint ./src/**/*.js
-
- PASS  src/tests/tests.spec.js
- PASS  src/debug/debug.spec.js
- PASS  src/disable/disable.spec.js
- PASS  src/json/json.spec.js
- PASS  src/lang/lang.spec.js
------------------------|---------|----------|---------|---------|-------------------
-File                   | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s
------------------------|---------|----------|---------|---------|-------------------
-All files              |   95.98 |    90.53 |   95.24 |   96.61 |
- src                   |       0 |        0 |       0 |       0 |
-  index.js             |       0 |        0 |       0 |       0 |
- src/debug             |   98.31 |    90.48 |     100 |     100 |
-  debug.js             |   98.31 |    90.48 |     100 |     100 | 18-41,44,61,72,87
- src/disable           |   90.32 |       75 |     100 |      90 |
-  disable.js           |   90.32 |       75 |     100 |      90 | 83-85
- src/json              |   92.59 |    88.46 |   77.78 |      94 |
-  ajax.js              |      85 |    92.31 |      75 |   84.21 | 53-54,62
-  json.js              |       0 |        0 |       0 |       0 |
-  json.mocks.js        |     100 |      100 |     100 |     100 |
-  promise.js           |    87.5 |      100 |   66.67 |     100 |
-  responder.js         |     100 |       75 |     100 |     100 | 20-21
- src/lang              |     100 |    96.67 |     100 |     100 |
-  filterHTMLTags.js    |     100 |      100 |     100 |     100 |
-  getPropertySafely.js |     100 |    93.75 |     100 |     100 | 33
-  getStringSafely.js   |     100 |      100 |     100 |     100 |
-  isEmptyObject.js     |     100 |    91.67 |     100 |     100 | 14
-  isEmptyString.js     |     100 |      100 |     100 |     100 |
-  isNull.js            |     100 |      100 |     100 |     100 |
-  isNullish.js         |     100 |      100 |     100 |     100 |
-  isNumber.js          |     100 |      100 |     100 |     100 |
-  isObject.js          |     100 |      100 |     100 |     100 |
-  isStringy.js         |     100 |      100 |     100 |     100 |
-  isType.js            |     100 |      100 |     100 |     100 |
-  isUndefined.js       |     100 |      100 |     100 |     100 |
-  isValidObject.js     |     100 |      100 |     100 |     100 |
-  lang.js              |       0 |        0 |       0 |       0 |
- src/tests             |     100 |      100 |     100 |     100 |
-  tests.js             |     100 |      100 |     100 |     100 |
------------------------|---------|----------|---------|---------|-------------------
-
-Test Suites: 5 passed, 5 total
-Tests:       57 passed, 57 total
-Snapshots:   0 total
-Time:        3.962 s
-Ran all test suites.
-```
+`npm run check` runs lint, tests, the build, package export tests, and an npm package dry run. Builds copy native ESM and use esbuild only for CommonJS compatibility.
 
 ## Documentation
-Each component will also have its own README file.
-- [https://flippydisk.github.io/tools](https://flippydisk.github.io/tools)
-- README files on Github: [https://github.com/flippydisk/tools](https://github.com/flippydisk/tools)
-- In any editor capable of reading .md files
-- Build them from this project: `npm run docs`
+
+The README, source comments, [migration guide](./MIGRATION.md), and [changelog](./CHANGELOG.md) are the maintained documentation in this repository. Longer-form project documentation belongs in the [GitHub Wiki](https://github.com/flippydisk/tools/wiki). The repository does not commit generated documentation websites.
+
+## Releasing
+
+Update the version locally without committing, tagging, pushing, or publishing:
+
+```sh
+npm run bump -- patch
+```
+
+The argument may be an npm version increment such as `major`, `minor`, `patch`, or `prerelease`, or an exact semantic version. Review the changed package files, update the changelog, run the required checks, and check the release into `main` normally.
+
+Add the `NPM Release` label to a complete release pull request. After that pull request merges, `.github/workflows/publish.yml` checks out `main` and checks whether the version in `package.json` is available on npm. If it is already published, the workflow selects the next available patch version, updates `package.json`, `package-lock.json`, and the matching changelog heading, and commits that bump to `main`.
+
+The workflow can also be dispatched manually from GitHub Actions with an exact version. From a clean local `main` that exactly matches `upstream/main`, this command dispatches that manual workflow for the version in `package.json`:
+
+```sh
+npm run release
+```
+
+Both paths repeat the complete validation for the selected version and refuse version mismatches or conflicting tags. The workflow then creates the matching Git tag and GitHub Release before publishing that version to npm. A rerun can finish npm publication when the workflow already created a matching release during an earlier attempt.
+
+The npm package must configure `flippydisk/tools` and `publish.yml` as an npm trusted publisher with direct publishing enabled. An npm package owner can perform that one-time setup after this workflow exists on the default branch:
+
+```sh
+npm trust github @flippydisk/tools --repo flippydisk/tools --file publish.yml --allow-publish
+```
+
+The workflow uses GitHub OIDC rather than a long-lived npm token and npm automatically records provenance for the public package.

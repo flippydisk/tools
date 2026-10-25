@@ -9,5 +9,5 @@
  * @return {Boolean} will return true if thing is a valid match. Otherwise it will return false.
  */
 export default function isType(expr, object) {
-    return expr.test(Object.prototype.toString.call(object));
+	return expr.test(Object.prototype.toString.call(object));
 }

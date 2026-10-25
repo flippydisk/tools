@@ -1,8 +1,8 @@
 {
   "name": "@flippydisk/tools",
-  "version": "1.1.1",
-  "description": "A set of JS utilities to help with web development",
-  "homepage": "https://www.flipppydisk.com",
+  "version": "2.0.0",
+  "description": "Framework-independent JavaScript utilities for browsers and Node.js",
+  "homepage": "https://www.flippydisk.com",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/flippydisk/tools.git"
@@ -32,83 +32,48 @@
       "import": "./dist/esm/json/ajax.js",
       "require": "./dist/cjs/json/ajax.cjs"
     },
-    "./json/promise": {
-      "import": "./dist/esm/json/promise.js",
-      "require": "./dist/cjs/json/promise.cjs"
-    },
-    "./json/responder": {
-      "import": "./dist/esm/json/responder.js",
-      "require": "./dist/cjs/json/responder.cjs"
-    },
     "./lang": {
       "import": "./dist/esm/lang/lang.js",
       "require": "./dist/cjs/lang/lang.cjs"
     },
-    "./tests": {
-      "import": "./dist/esm/tests/tests.js",
-      "require": "./dist/cjs/tests/tests.cjs"
-    },
     "./package.json": "./package.json"
   },
   "files": [
-    "docs",
-    "dist",
-    "src"
+    "dist"
   ],
   "keywords": [
     "flippydisk",
     "tools",
-    "web tools",
+    "javascript",
+    "utilities",
     "debug",
-    "debugger",
-    "debugging",
-    "log",
-    "logger",
     "logging",
-    "console"
+    "fetch"
   ],
-  "dependencies": {
-    "jsdom": "^26.1.0"
-  },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
-    "@swc/core": "^1.13.5",
-    "@swc/jest": "^0.2.39",
-    "cross-env": "^10.1.0",
-    "jsdoc": "^4.0.5",
-    "eslint": "^10.8.0",
-    "globals": "^16.4.0",
-    "jest": "^30.4.2",
-    "jest-environment-jsdom": "^30.4.1",
-    "jest-fetch-mock": "^3.0.3",
-    "jest-raw-loader": "^1.0.1"
+    "esbuild": "^0.28.2",
+    "eslint": "^10.13.0",
+    "globals": "^17.13.0"
   },
   "scripts": {
-    "lint": "cross-env eslint ./src --fix",
-    "test": "npm run lint && jest --coverage --verbose",
-    "test:watch": "npm run lint && jest --watch --coverage --verbose",
-    "build": "npm run test && node ./scripts/build.js",
-    "build:production": "npm run test && npm run docs && node ./scripts/build.js",
-    "docs": "jsdoc --configure jsdoc.json",
-    "docs:watch": "npm run docs",
-    "update": "cross-env ./scripts/update.sh",
-    "release": "cross-env ./scripts/npm-release.sh",
-    "bump": "cross-env ./scripts/bump.sh"
+    "lint": "eslint src test/*.test.js scripts",
+    "lint:fix": "npm run lint -- --fix",
+    "test": "npm run test:unit && npm run build && npm run test:package",
+    "test:unit": "node --test --experimental-test-coverage test/ajax.test.js test/debug.test.js test/disable.test.js test/lang.test.js",
+    "test:watch": "node --test --watch",
+    "build": "node ./scripts/build.js",
+    "bump": "node ./scripts/bump.js",
+    "check": "npm run lint && npm test && npm pack --dry-run",
+    "release": "node ./scripts/release.js",
+    "test:package": "node --test test/package.test.js"
   },
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/flippydisk/tools/issues"
   },
-  "directories": {
-    "doc": "docs",
-    "lib": "dist"
-  },
   "engines": {
-    "node": ">=18"
-  },
-  "overrides": {
-    "glob": "13.0.6",
-    "minimatch": "10.2.5"
+    "node": ">=22"
   },
   "sideEffects": false
 }

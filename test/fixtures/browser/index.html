@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<title>Flippydisk browser consumer</title>
+	</head>
+	<body>
+		<output id="result">loading</output>
+		<script type="module">
+			import Debug from '../../../dist/esm/debug/debug.js';
+			import { Lang } from '../../../dist/esm/index.js';
+
+			const debug = new Debug({ debug: true, control: 'NativeBrowser' });
+			const valid = debug.log('ESM loaded') && Lang.getStringSafely(true) === 'true';
+			document.querySelector('#result').textContent = valid ? 'pass' : 'fail';
+		</script>
+	</body>
+</html>

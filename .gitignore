@@ -23,6 +23,7 @@ coverage
 node_modules/
 .idea
 *.iml
+AGENTS.local.md
 
 # Optional npm cache directory
 .npm
@@ -37,3 +38,5 @@ node_modules/
 api/
 ./dist/
 lib/
+test/fixtures/next/.next/
+test/fixtures/vite/dist/

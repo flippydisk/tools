@@ -1,29 +1,29 @@
-import filterHTMLTags from './filterHTMLTags';
-import getPropertySafely from './getPropertySafely';
-import getStringSafely from './getStringSafely';
-import isEmptyObject from './isEmptyObject';
-import isEmptyString from './isEmptyString';
-import isNull from './isNull';
-import isNullish from './isNullish';
-import isNumber from './isNumber';
-import isStringy from './isStringy';
-import isType from './isType';
-import isUndefined from './isUndefined';
-import isObject from './isObject';
-import isValidObject from './isValidObject';
+import filterHTMLTags from './filterHTMLTags.js';
+import getPropertySafely from './getPropertySafely.js';
+import getStringSafely from './getStringSafely.js';
+import isEmptyObject from './isEmptyObject.js';
+import isEmptyString from './isEmptyString.js';
+import isNull from './isNull.js';
+import isNullish from './isNullish.js';
+import isNumber from './isNumber.js';
+import isStringy from './isStringy.js';
+import isType from './isType.js';
+import isUndefined from './isUndefined.js';
+import isObject from './isObject.js';
+import isValidObject from './isValidObject.js';
 
 export {
-    filterHTMLTags,
-    getPropertySafely,
-    getStringSafely,
-    isEmptyObject,
-    isEmptyString,
-    isNull,
-    isNullish,
-    isNumber,
-    isStringy,
-    isType,
-    isUndefined,
-    isObject,
-    isValidObject,
+	filterHTMLTags,
+	getPropertySafely,
+	getStringSafely,
+	isEmptyObject,
+	isEmptyString,
+	isNull,
+	isNullish,
+	isNumber,
+	isStringy,
+	isType,
+	isUndefined,
+	isObject,
+	isValidObject,
 };

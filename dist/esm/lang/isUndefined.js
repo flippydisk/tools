@@ -7,5 +7,5 @@
  * @return {Boolean} will return true if thing is null, undefined, NaN. Otherwise it will return null.
  */
 export default function isUndefined(thing) {
-    return typeof thing === 'undefined';
+	return typeof thing === 'undefined';
 }

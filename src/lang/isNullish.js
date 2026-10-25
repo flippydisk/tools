@@ -11,11 +11,11 @@
  *                    Otherwise it will return false.
  */
 export default function isNullish(thing) {
-    const type = typeof thing;
-    return (
-        type === 'undefined' ||
+	const type = typeof thing;
+	return (
+		type === 'undefined' ||
         (type === 'object' && thing === null) ||
-        (type === 'number' && isNaN(thing)) ||
+		(type === 'number' && Number.isNaN(thing)) ||
         (type === 'string' && thing === '')
-    );
+	);
 }

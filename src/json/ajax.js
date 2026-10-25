@@ -1,63 +1,43 @@
-import responder from './responder';
-import promise from './promise';
-import Debug from '../debug/debug';
-
-const debug = new Debug({ debug: false, control: 'Json:ajax' });
-
 /**
- * @function ajax
- * @parent Json
- * @description a clean Ajax handler, setting options for fetch(). Optionally log errors utilizing the responder &
- * Debug features.
+ * Request JSON or text with the platform Fetch API.
  *
- * @param {String} endpoint String URL to hit with the ajax request.
- * @param {Function} cb optional callback function
- * @param {Object} options override fetch options
- * @return {Function} cb optional callback function
+ * @param {string|URL|Request} endpoint Fetch-compatible request target.
+ * @param {Function} cb Optional callback invoked with the parsed response body.
+ * @param {RequestInit} options Fetch request options.
+ * @return {Promise<unknown>} Parsed response data or the callback's return value.
  */
-export default function ajax(endpoint = '', cb = undefined, options = {
-    headers: { 'Content-Type': 'application/json; charset=utf-8' },
-}) {
-    const signature = {
-        cb,
-        name: 'fetchhandler',
-        options,
-        url: endpoint,
-    };
+export default async function ajax(endpoint, cb, options = {}) {
+	if (endpoint === undefined || endpoint === null || endpoint === '') {
+		throw new TypeError('ajax requires an endpoint');
+	}
 
-    if (!endpoint) {
-        const errorMessage = Object.assign(signature, {
-            message: 'There is not a parameter for endpoint in this call',
-        });
+	if (cb !== undefined && typeof cb !== 'function') {
+		throw new TypeError(`ajax callback must be a function or undefined; received ${typeof cb}`);
+	}
 
-        return responder(errorMessage);
-    }
+	if (typeof globalThis.fetch !== 'function') {
+		throw new TypeError('ajax requires a global Fetch implementation');
+	}
 
-    if (typeof cb !== 'function' && typeof cb !== 'undefined') {
-        const errorMessage = Object.assign(signature, {
-            message: `The cb parameter in this call has an expected typeof === 'function' or undefined, and instead it has a typeof ${typeof cb}`,
-        });
+	const response = await globalThis.fetch(endpoint, options);
+	const text = response.status === 204 ? '' : await response.text();
+	let data = null;
 
-        return responder(errorMessage);
-    }
+	if (text !== '') {
+		const contentType = response.headers.get('content-type') ?? '';
+		data = contentType.includes('json') ? JSON.parse(text) : text;
+	}
 
-    return window.fetch(endpoint, options)
-        .then((response) => {
-            const { ok } = response;
+	if (!response.ok) {
+		const error = new Error(`${response.status}: ${response.statusText || 'HTTP request failed'}`);
+		error.name = 'HTTPError';
+		error.status = response.status;
+		error.statusText = response.statusText;
+		error.url = response.url;
+		error.response = response;
+		error.data = data;
+		throw error;
+	}
 
-            if (ok) {
-                debug.log('ajax: fetch.then(): OK', ok, '\nresponse:', response);
-                return response.json();
-            }
-
-            debug.log('ajax: NOT OK', ok);
-            return promise(signature, response, true);
-        })
-        .then((data) => {
-            if (typeof cb === 'function') return cb(data);
-            debug.log('ajax: fetch.then() Resolve: data:', data);
-
-            return data;
-        })
-        .catch(errorMessage => responder(errorMessage));
+	return cb ? cb(data) : data;
 }

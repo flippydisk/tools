@@ -1,66 +1,56 @@
-const responder = require("./responder.cjs");
-const promise = require("./promise.cjs");
-const Debug = require("../debug/debug.cjs");
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __getOwnPropNames = Object.getOwnPropertyNames;
+var __hasOwnProp = Object.prototype.hasOwnProperty;
+var __export = (target, all) => {
+  for (var name in all)
+    __defProp(target, name, { get: all[name], enumerable: true });
+};
+var __copyProps = (to, from, except, desc) => {
+  if (from && typeof from === "object" || typeof from === "function") {
+    for (let key of __getOwnPropNames(from))
+      if (!__hasOwnProp.call(to, key) && key !== except)
+        __defProp(to, key, { get: () => from[key], enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable });
+  }
+  return to;
+};
+var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 
-const debug = new Debug({ debug: false, control: 'Json:ajax' });
-
-/**
- * @function ajax
- * @parent Json
- * @description a clean Ajax handler, setting options for fetch(). Optionally log errors utilizing the responder &
- * Debug features.
- *
- * @param {String} endpoint String URL to hit with the ajax request.
- * @param {Function} cb optional callback function
- * @param {Object} options override fetch options
- * @return {Function} cb optional callback function
- */
-function ajax(endpoint = '', cb = undefined, options = {
-    headers: { 'Content-Type': 'application/json; charset=utf-8' },
-}) {
-    const signature = {
-        cb,
-        name: 'fetchhandler',
-        options,
-        url: endpoint,
-    };
-
-    if (!endpoint) {
-        const errorMessage = Object.assign(signature, {
-            message: 'There is not a parameter for endpoint in this call',
-        });
-
-        return responder(errorMessage);
-    }
-
-    if (typeof cb !== 'function' && typeof cb !== 'undefined') {
-        const errorMessage = Object.assign(signature, {
-            message: `The cb parameter in this call has an expected typeof === 'function' or undefined, and instead it has a typeof ${typeof cb}`,
-        });
-
-        return responder(errorMessage);
-    }
-
-    return window.fetch(endpoint, options)
-        .then((response) => {
-            const { ok } = response;
-
-            if (ok) {
-                debug.log('ajax: fetch.then(): OK', ok, '\nresponse:', response);
-                return response.json();
-            }
-
-            debug.log('ajax: NOT OK', ok);
-            return promise(signature, response, true);
-        })
-        .then((data) => {
-            if (typeof cb === 'function') return cb(data);
-            debug.log('ajax: fetch.then() Resolve: data:', data);
-
-            return data;
-        })
-        .catch(errorMessage => responder(errorMessage));
+// src/json/ajax.js
+var ajax_exports = {};
+__export(ajax_exports, {
+  default: () => ajax
+});
+module.exports = __toCommonJS(ajax_exports);
+async function ajax(endpoint, cb, options = {}) {
+  if (endpoint === void 0 || endpoint === null || endpoint === "") {
+    throw new TypeError("ajax requires an endpoint");
+  }
+  if (cb !== void 0 && typeof cb !== "function") {
+    throw new TypeError(`ajax callback must be a function or undefined; received ${typeof cb}`);
+  }
+  if (typeof globalThis.fetch !== "function") {
+    throw new TypeError("ajax requires a global Fetch implementation");
+  }
+  const response = await globalThis.fetch(endpoint, options);
+  const text = response.status === 204 ? "" : await response.text();
+  let data = null;
+  if (text !== "") {
+    const contentType = response.headers.get("content-type") ?? "";
+    data = contentType.includes("json") ? JSON.parse(text) : text;
+  }
+  if (!response.ok) {
+    const error = new Error(`${response.status}: ${response.statusText || "HTTP request failed"}`);
+    error.name = "HTTPError";
+    error.status = response.status;
+    error.statusText = response.statusText;
+    error.url = response.url;
+    error.response = response;
+    error.data = data;
+    throw error;
+  }
+  return cb ? cb(data) : data;
 }
 
-module.exports = ajax;
-module.exports.default = ajax;
+module.exports = module.exports.default;
+module.exports.default = module.exports;

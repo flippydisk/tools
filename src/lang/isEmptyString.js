@@ -1,5 +1,5 @@
-import isNull from './isNull';
-import getStringSafely from './getStringSafely';
+import isNull from './isNull.js';
+import getStringSafely from './getStringSafely.js';
 
 /**
  * @function isEmptyString
@@ -12,8 +12,9 @@ import getStringSafely from './getStringSafely';
  *                    Otherwise it will return false.
  */
 export default function isEmptyString(string) {
-    if (!isNull(getStringSafely(string))) {
-        return getStringSafely(string) === '';
-    }
-    return false;
+	const converted = getStringSafely(string);
+	if (!isNull(converted)) {
+		return converted === '';
+	}
+	return false;
 }

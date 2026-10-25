@@ -1,0 +1,136 @@
+name: Publish npm package
+
+on:
+  pull_request:
+    types:
+      - closed
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Exact package version to publish from main
+        required: true
+        type: string
+
+permissions:
+  contents: write
+  id-token: write
+
+concurrency:
+  group: publish-npm
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    if: >-
+      github.repository == 'flippydisk/tools' &&
+      (github.event_name == 'workflow_dispatch' ||
+      (github.event.pull_request.merged == true &&
+      contains(github.event.pull_request.labels.*.name, 'NPM Release')))
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          ref: main
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+          package-manager-cache: false
+      - name: Use an OIDC-capable npm CLI
+        run: npm install --global npm@11
+      - run: npm ci
+      - name: Select an unpublished version
+        id: release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          MANUAL_VERSION: ${{ inputs.version }}
+        run: |
+          version_is_published() {
+            local output
+            if output="$(npm view "@flippydisk/tools@$1" version 2>&1)"; then
+              return 0
+            fi
+
+            if grep -q "E404" <<< "$output"; then
+              return 1
+            fi
+
+            echo "$output"
+            echo "Could not determine whether @flippydisk/tools@$1 exists"
+            exit 1
+          }
+
+          package_version="$(node -p "require('./package.json').version")"
+          requested_version="${MANUAL_VERSION:-$package_version}"
+
+          if [ "$requested_version" != "$package_version" ]; then
+            echo "Requested version $requested_version does not match package.json version $package_version"
+            exit 1
+          fi
+
+          while version_is_published "$package_version"; do
+            echo "@flippydisk/tools@$package_version already exists; selecting the next patch version"
+            npm version patch --no-git-tag-version --ignore-scripts
+            package_version="$(node -p "require('./package.json').version")"
+          done
+
+          if [ "$package_version" != "$requested_version" ]; then
+            REQUESTED_VERSION="$requested_version" RELEASE_VERSION="$package_version" node --input-type=module -e '
+              import { readFileSync, writeFileSync } from "node:fs";
+              const path = "CHANGELOG.md";
+              const changelog = readFileSync(path, "utf8");
+              const heading = `## ${process.env.REQUESTED_VERSION}`;
+              if (!changelog.includes(heading)) throw new Error(`Missing changelog heading: ${heading}`);
+              writeFileSync(path, changelog.replace(heading, `## ${process.env.RELEASE_VERSION}`));
+            '
+          fi
+
+          tag="v$package_version"
+          if git ls-remote --exit-code --tags origin "refs/tags/$tag" >/dev/null 2>&1; then
+            git fetch origin "refs/tags/$tag:refs/tags/$tag"
+            if ! gh release view "$tag" >/dev/null 2>&1; then
+              echo "Git tag $tag exists without a corresponding GitHub Release"
+              exit 1
+            fi
+
+            if [ "$(git rev-list -n 1 "$tag")" != "$(git rev-parse HEAD)" ]; then
+              echo "Git tag $tag does not point to the current main commit"
+              exit 1
+            fi
+
+            echo "release_exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "release_exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+          echo "version=$package_version" >> "$GITHUB_OUTPUT"
+      - run: npm run check
+      - name: Check in automatic version bump
+        shell: bash
+        env:
+          RELEASE_VERSION: ${{ steps.release.outputs.version }}
+        run: |
+          if git diff --quiet -- CHANGELOG.md package.json package-lock.json; then
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add CHANGELOG.md package.json package-lock.json
+          git commit -m "Release $RELEASE_VERSION"
+          git push origin HEAD:main
+      - name: Create GitHub release
+        if: steps.release.outputs.release_exists != 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ steps.release.outputs.tag }}
+        run: >-
+          gh release create "$RELEASE_TAG"
+          --target "$(git rev-parse HEAD)"
+          --title "$RELEASE_TAG"
+          --generate-notes
+      - name: Publish to npm
+        run: npm publish --access public

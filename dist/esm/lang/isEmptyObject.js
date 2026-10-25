@@ -9,7 +9,6 @@ import isNullish from './isNullish.js';
 
  
 export default function isEmptyObject(obj) {
-    if (typeof obj !== 'object' || isNullish(obj)) return true;
-    if (typeof obj === 'object' && !Array.isArray(obj)) return Object.keys(obj).length <= 0;
-    if (typeof obj === 'object' && Array.isArray(obj)) return obj.length <= 0;
+	if (typeof obj !== 'object' || isNullish(obj)) return true;
+	return Object.keys(obj).length === 0;
 }

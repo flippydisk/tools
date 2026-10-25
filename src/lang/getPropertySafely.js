@@ -17,30 +17,30 @@
  * getPropertySafely({a: {b: 'c'}}, 'd.b') -> undefined
  */
 export default function getPropertySafely(obj, propPath) {
-    if (
-        typeof obj === 'object' &&
+	if (
+		typeof obj === 'object' &&
         typeof propPath === 'string' &&
         obj !== null &&
         Object.keys(obj).length &&
         propPath.length
-    ) {
-        const path = propPath.split('.');
-        const len = path.length;
-        let current = obj;
+	) {
+		const path = propPath.split('.');
+		const len = path.length;
+		let current = obj;
 
-        for (let i = 0; i < len; i += 1) {
-            if ((current === null || current === undefined || Number.isNaN(current))) {
-                return i === len ? current : undefined;
-            }
+		for (let i = 0; i < len; i += 1) {
+			if ((current === null || current === undefined || Number.isNaN(current))) {
+				return i === len ? current : undefined;
+			}
 
-            if (Object.prototype.hasOwnProperty.call(current, path[i])) {
-                current = current[path[i]];
-            } else {
-                return undefined;
-            }
-        }
+			if (Object.prototype.hasOwnProperty.call(current, path[i])) {
+				current = current[path[i]];
+			} else {
+				return undefined;
+			}
+		}
 
-        return current;
-    }
-    return undefined;
+		return current;
+	}
+	return undefined;
 }

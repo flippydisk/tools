@@ -8,5 +8,5 @@
  * @return {Boolean} will return true if thing is a valid object. Otherwise it will return false.
  */
 export default function isNull(thing) {
-    return typeof thing === 'object' && thing === null;
+	return typeof thing === 'object' && thing === null;
 }

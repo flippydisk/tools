@@ -12,8 +12,9 @@ import getStringSafely from './getStringSafely.js';
  *                    Otherwise it will return false.
  */
 export default function isEmptyString(string) {
-    if (!isNull(getStringSafely(string))) {
-        return getStringSafely(string) === '';
-    }
-    return false;
+	const converted = getStringSafely(string);
+	if (!isNull(converted)) {
+		return converted === '';
+	}
+	return false;
 }

@@ -9,8 +9,8 @@
  * false
  */
 
-import isObject from './isObject';
-import isEmptyObject from './isEmptyObject';
+import isObject from './isObject.js';
+import isEmptyObject from './isEmptyObject.js';
 
 const isValidObject = ele => isObject(ele) && !isEmptyObject(ele);
 export default isValidObject;

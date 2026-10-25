@@ -1,9 +1,3 @@
-import ajax from './ajax';
-import responder from './responder';
-import promise from './promise';
+import ajax from './ajax.js';
 
-export {
-    ajax,
-    promise,
-    responder
-};
+export { ajax };

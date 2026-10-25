@@ -10,5 +10,5 @@ import getStringSafely from './getStringSafely.js';
  * @return {Boolean} true if it can be safely coerced into a string. false if not.
  */
 export default function isStringy(thing) {
-    return getStringSafely(thing) !== null;
+	return getStringSafely(thing) !== null;
 }

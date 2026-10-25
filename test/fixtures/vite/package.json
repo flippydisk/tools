@@ -1,0 +1,12 @@
+{
+  "name": "flippydisk-vite-consumer",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "vite build"
+  },
+  "dependencies": {
+    "@flippydisk/tools": "file:../../..",
+    "vite": "^7.1.12"
+  }
+}
